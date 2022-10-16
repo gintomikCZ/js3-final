@@ -1,17 +1,32 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
+  <t-nav-bar />
   <router-view/>
 </template>
 
+<script>
+
+import TNavBar from './components/TNavBar.vue'
+
+export default {
+
+  name: 'App',
+  components: { TNavBar }
+
+}
+
+
+</script>
+
+
+
 <style lang="stylus">
-#app
+#lalala
   font-family Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
   text-align center
   color #2c3e50
-  margin-top 60px
+body
+  margin: 0
+  padding: 0
 </style>
