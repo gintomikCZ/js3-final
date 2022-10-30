@@ -43,7 +43,8 @@ ul
 ul > li
   display: flex
   padding: .35em 0
-  border-bottom: 1px solid $border-light
+  &:not(:last-child)
+    border-bottom: 1px solid $border-light
 
 ul > li > span:first-child
   width: 50%

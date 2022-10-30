@@ -13,9 +13,6 @@ const checkUrl = (url) => {
 
 export default {
 
-  // načítá záznam(y)
-  // get(players) - načte záznamy všech hráčů
-  // get(players/1) - načte 1 záznam hráče s id 1
   get (path) {
     return axios({
       method: 'get',

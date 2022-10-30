@@ -5,7 +5,8 @@ import { createStore } from 'vuex'
 export default createStore({
   state: {
     persons: {},
-    projects: {}
+    projects: {},
+    tasks: {}
   },
   getters: {
   },
@@ -28,11 +29,22 @@ export default createStore({
     setProjectShow (state, payload) {
       state.projects[payload.projectid].show = payload.value
     },
+    setTaskShow (state, payload) {
+      state.tasks[payload.taskid].show = payload.value
+    },
     setProjects (state, data) {
       state.projects = {}
       data.forEach(record => {
         state.projects[record.id] = Object.assign(record, { show: false, tasks: [] })
       })
+    },
+    setTasks (state, data) {
+      data.forEach(record => {
+        state.tasks[record.id] = Object.assign(record, { show: false, persons: [] })
+      })
+    },
+    setTaskPersons (state, payload) {
+      state.tasks[payload.taskid].persons = payload.data
     }
   },
   actions: {
@@ -48,6 +60,11 @@ export default createStore({
         }) })
       })
     },
+    fetchTaskPersons (context, taskid) {
+      db.get('js3personstasks?taskid=' + taskid).then(data => {
+        context.commit('setTaskPersons', { taskid, data })
+      })
+    },
     fetchProjects (context) {
       db.get('js3projects').then(data => {
         context.commit('setProjects', data)
@@ -60,6 +77,11 @@ export default createStore({
             return Object.assign(item, { startsFormated: formatDate(item.starts), endsFormated: formatDate(item.ends) })
           })
         })
+      })
+    },
+    fetchTasks (context) {
+      db.get('js3tasks').then(data => {
+        context.commit('setTasks', data)
       })
     }
   },

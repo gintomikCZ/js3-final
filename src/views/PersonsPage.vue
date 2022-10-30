@@ -42,7 +42,6 @@ export default {
   data () {
     return {
       loading: true,
-      showPersons: []
     }
   },
   computed: {

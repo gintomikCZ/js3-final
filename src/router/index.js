@@ -27,6 +27,16 @@ const routes = [
     name: 'tasks',
     component: () => import('../views/TasksPage.vue')
   },
+  {
+    path: '/projectform',
+    name: 'projectForm',
+    component: () => import('../views/forms/ProjectFormPage.vue')
+  },
+  {
+    path: '/projectform/:id',
+    name: 'projectFormEdit',
+    component: () => import('../views/forms/ProjectFormPage.vue')
+  },
 
 ]
 
