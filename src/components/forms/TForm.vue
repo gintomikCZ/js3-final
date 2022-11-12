@@ -1,5 +1,5 @@
 <template>
-  <form autocomplete="off">
+  <form autocomplete="off" @submit.prevent="onSubmit">
     <t-control
       v-for="control in controls"
       :key="control"
@@ -10,6 +10,9 @@
       @changed="onChanged"
       @blured="onBlured"
     />
+    <div>
+      <t-button :label="submitBtnText"/>
+    </div>
   </form>
 </template>
 
@@ -17,10 +20,17 @@
 <script>
 import TControl from './TControl.vue'
 import validator from '../../helpers/validator.js'
+import TButton from '../TButton.vue'
 export default {
   name: 'TForm',
   props: {
-    settings: Object
+    settings: {
+      type: Object
+    },
+    submitBtnText: {
+      type: String,
+      default: 'submit'
+    }
   },
   data () {
     return {
@@ -43,27 +53,10 @@ export default {
   },
   methods: {
     validate (control) {
-      // let error = false
-      // this.settings[control].valRules.forEach(valRule => {
-      //   if (!error) {
-      //     const result = 'par' in valRule
-      //       ? validator[valRule.rule](this.formData[control].value, valRule.par)
-      //       : validator[valRule.rule](this.formData[control].value)
-      //     if(!result) {
-      //       this.formData[control].error = true
-      //       this.formData[control].errorMessage = valRule.message
-      //       error = true
-      //     }
-      //   } // [true, true, false, true, false]
-      // })
-      // if (!error) {
-      //   this.formData[control].error = false
-      //   this.formData[control].errorMessage = ''
-      // }
       const promises = this.settings[control].valRules.map(rule => {
         return validator[rule.rule](this.formData[control].value, rule.par)
       })
-      Promise.all(promises).then(result => {
+      return Promise.all(promises).then(result => {
         if (result.every(item => item)) {
           this.formData[control].error = false
           this.formData[control].errorMessage = ''
@@ -73,9 +66,18 @@ export default {
           this.formData[control].errorMessage = this.settings[control].valRules[index].message
         }
       })
-
     },
-
+    onSubmit () {
+      Promise.all(this.controls.map(control => this.validate(control))).then(() => {
+        console.log(this.formData)
+        if (this.controls.every(control => !this.formData[control].error)) {
+          this.$emit('submited', this.controls.reduce((acc, cur) => {
+            acc[cur] = this.formData[cur].value
+            return acc
+          }, {}))
+        }
+      })
+    },
     onChanged (payload) {
       this.formData[payload.control].value = payload.value.trim()
     },
@@ -83,7 +85,7 @@ export default {
       this.validate(control)
     }
   },
-  components: { TControl }
+  components: { TControl, TButton }
 
 }
 

@@ -28,6 +28,13 @@ export default {
     // return !data.some(record => {
     //   return '' + record[par.column].toLowerCase() === value.toLowerCase()
     // })
-  }
+  },
 
+  pattern (value, par) {
+    return par.test(value)
+  },
+
+  valueList (value, par) {
+    return par.indexOf(value) > -1
+  }
 }

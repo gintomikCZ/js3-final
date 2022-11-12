@@ -1,22 +1,22 @@
 <template>
-  <div class="page">
-    <h1>Persons</h1>
-    <t-loading v-if="loading" />
-    <div v-else class="page-container">
-
+  <t-page title="persons" :loading="loading">
+    <template v-slot:btn>
+      <t-button label="add new person" @clicked="onClicked"/>
+    </template>
+    <template v-slot:content>
       <t-accordion
         v-for="personid in personskeys"
         :key="'person' + personid"
-        @toggle-me="onToggleMe(personid)"
+        @toggle-me="onToggleMe(personid, $event)"
         :show="persons[personid].show"
       >
         <template v-slot:header>
           <div class="person-label">
             <div>{{ persons[personid].last + ' ' + persons[personid].first }}</div>
-            <div>
+            <div :ref="'links' + personid">
               <!-- TODO: add router links -->
               <router-link to="#">detail</router-link>
-              <router-link to="#">edit</router-link>
+              <router-link :to="'/personform/' + personid">edit</router-link>
               <router-link to="#">add task</router-link>
             </div>
           </div>
@@ -25,17 +25,16 @@
           <t-task-list :tasks="persons[personid].tasks"/>
         </template>
       </t-accordion>
-
-    </div>
-
-  </div>
+    </template>
+  </t-page>
 
 </template>
 
 <script>
 import TAccordion from '../components/TAccordion.vue'
-import TLoading from '../components/TLoading.vue'
 import TTaskList from '../components/TTaskList.vue'
+import TPage from '../components/TPage.vue'
+import TButton from '../components/TButton.vue'
 
 export default {
   name: 'PersonsPage',
@@ -60,7 +59,11 @@ export default {
     this.$store.dispatch('fetchPersons').then(this.loading = false)
   },
   methods: {
-    onToggleMe (personid) {
+    onToggleMe (personid, $event) {
+      const linksEl = this.$refs['links' + personid][0]
+      if (linksEl.contains($event.target)) {
+        return
+      }
       if (this.persons[personid].show) {
         this.$store.commit('setPersonShow', { personid, value: false })
         return
@@ -68,25 +71,18 @@ export default {
       this.$store.dispatch('fetchPersonTasks', personid).then(() => {
         this.$store.commit('setPersonShow', { personid, value: true })
       })
+    },
+    onClicked () {
+      this.$router.push('/personform')
     }
   },
-  components: { TAccordion, TLoading, TTaskList }
+  components: { TAccordion, TTaskList, TPage, TButton }
 }
 
 </script>
 
 <style lang="stylus" scoped>
 @import '../styles/variables.styl'
-.page
-  display: flex
-  flex-direction: column
-  align-items: center
-.page-container
-  display: flex
-  flex-direction: column
-  width: 80%
-
-
 .person-label
   display: flex
   justify-content: space-between

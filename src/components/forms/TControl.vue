@@ -1,7 +1,23 @@
 <template>
   <div class="form-control">
     <label :for="control">{{ settings.label }}</label>
+    <select
+      v-if="settings.type === 'select'"
+      @input="onInput"
+      @change="onChange"
+      @blur="onBlur"
+    >
+      <option
+        v-for="option in settings.options"
+        :key="control + option.value"
+        :value="option.value"
+        :selected="'' + option.value === '' + settings.initialValue"
+      >
+        {{ option.label }}
+      </option>
+    </select>
     <input
+      v-else
       :class="{'error': error}"
       :id="control"
       :placeholder="settings.placeholder || ''"
@@ -14,8 +30,7 @@
     <transition name="slide">
       <div v-if="error" class="error-message">{{ errorMessage }}</div>
     </transition>
-    </div>
-
+  </div>
 </template>
 
 <script>
@@ -60,18 +75,24 @@ export default {
   display: flex
   flex-direction: column
   align-items: flex-start
-  margin-bottom: 1.5rem
+  margin-bottom: 2rem
   position: relative
 
 label
   margin-bottom: .5rem
 
-input
+input, select
   padding: .4em .5em
   font-size: 1.1rem
+  border: 2px solid $border-light
+  transition: border-color .3s ease
+  border-radius: 0
+  &:focus
+    outline: none
+    border-color: $focus-border-color
 
 .error
-  border: 1px solid $error-color
+  border: 2px solid $error-color
 
 .error-message
   font-size: 0.9rem

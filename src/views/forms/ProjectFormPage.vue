@@ -2,7 +2,11 @@
   <div class="page">
     <h1>{{ title }}</h1>
     <t-loading v-if="loading"/>
-    <t-form v-else :settings="formSettings" />
+    <t-form
+      v-else
+      :settings="formSettings"
+      @submited="onSubmited"
+    />
   </div>
 </template>
 
@@ -50,9 +54,17 @@ export default {
       this.loading = false
     }
   },
+  methods: {
+    onSubmited (payload) {
+      const method = this.mode === 'add' ? 'post' : 'put'
+      const data = this.mode === 'add' ? payload : Object.assign({ id: this.$route.params.id }, payload)
+      db[method]('js3projects', data).then(() => {
+        this.$router.push('/projects')
+      })
+    }
+  },
   components: { TForm, TLoading }
 }
-
 
 </script>
 

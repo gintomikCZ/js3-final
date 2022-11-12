@@ -1,37 +1,39 @@
 <template>
-  <div class="page">
-    <h1>Projects</h1>
-    <t-loading v-if="loading" />
-    <div v-else class="page-container">
+  <t-page title="projects" :loading=loading>
+    <template v-slot:btn>
+      <t-button label="add new project" @clicked="onClicked"/>
+    </template>
+    <template v-slot:content>
       <t-accordion
         v-for="projectid in projectKeys"
         :key="'project' + projectid"
-        @toggle-me="onToggleMe(projectid)"
+        @toggle-me="onToggleMe(projectid, $event)"
         :show="projects[projectid].show"
       >
         <template v-slot:header>
           <div class="project-label">
             <div>{{ projects[projectid].project }}</div>
-            <div>
+            <div :ref="'links' + projectid">
               <!-- TODO: add router links -->
               <router-link to="#">detail</router-link>
-              <router-link to="#">edit</router-link>
+              <router-link :to="'/projectform/' + projectid">edit</router-link>
               <router-link to="#">add task</router-link>
             </div>
           </div>
         </template>
         <template v-slot:content>
-          <t-task-list :tasks="projects[projectid].tasks" />
+          <t-task-list :tasks="projects[projectid].tasks"/>
         </template>
       </t-accordion>
-    </div>
-  </div>
+    </template>
+  </t-page>
 </template>
 
 <script>
 import TAccordion from '../components/TAccordion.vue'
-import TLoading from '../components/TLoading.vue'
 import TTaskList from '../components/TTaskList.vue'
+import TPage from '../components/TPage.vue'
+import TButton from '../components/TButton.vue'
 
 export default {
   name: 'ProjectsPage',
@@ -52,7 +54,11 @@ export default {
     this.$store.dispatch('fetchProjects').then(this.loading = false)
   },
   methods: {
-    onToggleMe (projectid) {
+    onToggleMe (projectid, $event) {
+      const linksEl = this.$refs['links' + projectid][0]
+      if (linksEl.contains($event.target)) {
+        return
+      }
       if (this.projects[projectid].show) {
         this.$store.commit('setProjectShow', { projectid, value: false })
         return
@@ -60,9 +66,12 @@ export default {
       this.$store.dispatch('fetchProjectTasks', projectid).then(() => {
         this.$store.commit('setProjectShow', { projectid, value: true })
       })
+    },
+    onClicked () {
+      this.$router.push('/projectform')
     }
   },
-  components: { TLoading, TAccordion, TTaskList }
+  components: { TAccordion, TTaskList, TPage, TButton }
 }
 
 </script>
@@ -70,15 +79,6 @@ export default {
 <style lang="stylus" scoped>
 
 @import '../styles/variables.styl'
-.page
-  display: flex
-  flex-direction: column
-  align-items: center
-.page-container
-  display: flex
-  flex-direction: column
-  width: 80%
-
 .project-label
   display: flex
   justify-content: space-between

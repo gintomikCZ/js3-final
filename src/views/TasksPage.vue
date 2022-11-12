@@ -1,9 +1,9 @@
 <template>
-<div class="page">
-  <h1>Tasks</h1>
-  <t-loading v-if="loading" />
-  <div v-else class="page-container">
-
+<t-page :loading="loading" title="tasks">
+  <template v-slot:btn>
+    <t-button label="add new task" @clicked="onClicked"/>
+  </template>
+  <template v-slot:content>
     <t-accordion v-for="taskid in taskkeys" :key="'task' + taskid" @toggle-me="onToggleMe(taskid)"
       :show="tasks[taskid].show">
       <template v-slot:header>
@@ -24,16 +24,15 @@
         <t-person-list :persons="tasks[taskid].persons"/>
       </template>
     </t-accordion>
-
-  </div>
-
-</div>
+  </template>
+</t-page>
 </template>
 
 <script>
 import TAccordion from '../components/TAccordion.vue'
-import TLoading from '../components/TLoading.vue'
 import TPersonList from '../components/TPersonList.vue'
+import TPage from '../components/TPage.vue'
+import TButton from '../components/TButton.vue'
 import { formatDate } from '../helpers/dateFunctions.js'
 export default {
   name: 'TasksPage',
@@ -67,9 +66,12 @@ export default {
       this.$store.dispatch('fetchTaskPersons', taskid).then(() => {
         this.$store.commit('setTaskShow', { taskid, value: true })
       })
+    },
+    onClicked () {
+      this.$router.push('/taskform')
     }
   },
-  components: { TAccordion, TLoading, TPersonList }
+  components: { TAccordion, TPersonList, TPage, TButton }
 }
 
 </script>

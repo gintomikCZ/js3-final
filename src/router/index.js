@@ -19,7 +19,7 @@ const routes = [
   },
   {
     path: '/projects',
-    name: 'Projects',
+    name: 'projects',
     component: () => import('../views/ProjectsPage.vue')
   },
   {
@@ -33,9 +33,29 @@ const routes = [
     component: () => import('../views/forms/ProjectFormPage.vue')
   },
   {
+    path: '/personform',
+    name: 'personForm',
+    component: () => import('../views/forms/PersonFormPage.vue')
+  },
+  {
+    path: '/taskform',
+    name: 'taskForm',
+    component: () => import('../views/forms/TaskFormPage.vue')
+  },
+  {
     path: '/projectform/:id',
     name: 'projectFormEdit',
     component: () => import('../views/forms/ProjectFormPage.vue')
+  },
+  {
+    path: '/taskform/:id',
+    name: 'taskFormEdit',
+    component: () => import('../views/forms/TaskFormPage.vue')
+  },
+  {
+    path: '/personform/:id',
+    name: 'personFormEdit',
+    component: () => import('../views/forms/PersonFormPage.vue')
   },
 
 ]

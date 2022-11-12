@@ -20,8 +20,8 @@ export default {
     show: Boolean
   },
   methods: {
-    onHeaderClick () {
-      this.$emit('toggle-me')
+    onHeaderClick (e) {
+      this.$emit('toggle-me', e)
     },
   },
 }
