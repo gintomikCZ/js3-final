@@ -12,6 +12,8 @@ const routes = [
     name: 'home2',
     component: () => import('../views/HomePage.vue')
   },
+
+  // LISTS
   {
     path: '/persons',
     name: 'persons',
@@ -27,6 +29,8 @@ const routes = [
     name: 'tasks',
     component: () => import('../views/TasksPage.vue')
   },
+
+  // FORMS
   {
     path: '/projectform',
     name: 'projectForm',
@@ -42,6 +46,8 @@ const routes = [
     name: 'taskForm',
     component: () => import('../views/forms/TaskFormPage.vue')
   },
+
+  // EDIT FORMS
   {
     path: '/projectform/:id',
     name: 'projectFormEdit',
@@ -57,6 +63,13 @@ const routes = [
     name: 'personFormEdit',
     component: () => import('../views/forms/PersonFormPage.vue')
   },
+
+  // DETAIL PAGES
+  {
+    path: '/persondetail/:id',
+    name: 'personDetail',
+    component: () => import('../views/PersonDetailPage.vue')
+  }
 
 ]
 

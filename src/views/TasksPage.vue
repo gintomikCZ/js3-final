@@ -4,7 +4,10 @@
     <t-button label="add new task" @clicked="onClicked"/>
   </template>
   <template v-slot:content>
-    <t-accordion v-for="taskid in taskkeys" :key="'task' + taskid" @toggle-me="onToggleMe(taskid)"
+    <t-accordion
+      v-for="taskid in taskkeys"
+      :key="'task' + taskid"
+      @toggle-me="onToggleMe(taskid, $event)"
       :show="tasks[taskid].show">
       <template v-slot:header>
         <div class="task-label">
@@ -12,10 +15,10 @@
             <div>{{ tasks[taskid].task }}</div>
             <div>{{ formatDate(tasks[taskid].starts) + ' - ' + formatDate(tasks[taskid].ends) + (tasks[taskid].completed ? ', done' : '') }}</div>
           </div>
-          <div>
+          <div :ref="'links' + taskid">
             <!-- TODO: add router links -->
             <router-link to="#">detail</router-link>
-            <router-link to="#">edit</router-link>
+            <router-link :to="'/taskform/' + taskid">edit</router-link>
             <router-link to="#">add person</router-link>
           </div>
         </div>
@@ -58,7 +61,11 @@ export default {
     formatDate (value) {
       return formatDate(value)
     },
-    onToggleMe (taskid) {
+    onToggleMe (taskid, $event) {
+      const linksEl = this.$refs['links' + taskid][0]
+      if (linksEl.contains($event.target)) {
+        return
+      }
       if (this.tasks[taskid].show) {
         this.$store.commit('setTaskShow', { taskid, value: false })
         return

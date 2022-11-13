@@ -6,7 +6,8 @@ export default createStore({
   state: {
     persons: {},
     projects: {},
-    tasks: {}
+    tasks: {},
+    personDetail: {}
   },
   getters: {
   },
@@ -18,7 +19,15 @@ export default createStore({
       })
     },
     setPersonTasks (state, payload) {
-      state.persons[payload.personid].tasks = payload.data
+      if (payload.detail) {
+        state.personDetail = Object.assign(state.personDetail, {
+          tasks: payload.data,
+          totalTasks: payload.data.length,
+          totalCompleted: payload.data.filter(item => '' + item.completed === '1').length
+        })
+      } else {
+        state.persons[payload.personid].tasks = payload.data
+      }
     },
     setProjectTasks (state, payload) {
       state.projects[payload.projectid].tasks = payload.data
@@ -45,6 +54,9 @@ export default createStore({
     },
     setTaskPersons (state, payload) {
       state.tasks[payload.taskid].persons = payload.data
+    },
+    setPersonDetail (state, record) {
+      state.personDetail = Object.assign(state.personDetail, record)
     }
   },
   actions: {
@@ -53,11 +65,15 @@ export default createStore({
         context.commit('setPersons', data)
       })
     },
-    fetchPersonTasks (context, personid) {
-      db.get('js3personstasks?personid=' + personid).then(data => {
-        context.commit('setPersonTasks', { personid, data: data.map (item => {
-          return Object.assign(item, { startsFormated: formatDate(item.starts), endsFormated: formatDate(item.ends) })
-        }) })
+    fetchPersonTasks (context, payload) {
+      db.get('js3personstasks?personid=' + payload.personid).then(data => {
+        context.commit('setPersonTasks', {
+          personid: payload.personid,
+          detail: payload.detail,
+          data: data.map (item => {
+            return Object.assign(item, { startsFormated: formatDate(item.starts), endsFormated: formatDate(item.ends) })
+          })
+        })
       })
     },
     fetchTaskPersons (context, taskid) {
@@ -83,9 +99,15 @@ export default createStore({
       db.get('js3tasks').then(data => {
         context.commit('setTasks', data)
       })
+    },
+    fetchPersonDetail (context, id) {
+      db.get('/js3persons/' + id).then((record) => {
+        context.commit('setPersonDetail', record)
+      })
     }
   },
   modules: {
+
   }
 })
 

@@ -69,7 +69,6 @@ export default {
     },
     onSubmit () {
       Promise.all(this.controls.map(control => this.validate(control))).then(() => {
-        console.log(this.formData)
         if (this.controls.every(control => !this.formData[control].error)) {
           this.$emit('submited', this.controls.reduce((acc, cur) => {
             acc[cur] = this.formData[cur].value

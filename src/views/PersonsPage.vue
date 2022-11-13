@@ -15,7 +15,7 @@
             <div>{{ persons[personid].last + ' ' + persons[personid].first }}</div>
             <div :ref="'links' + personid">
               <!-- TODO: add router links -->
-              <router-link to="#">detail</router-link>
+              <router-link :to="'/persondetail/' + personid">detail</router-link>
               <router-link :to="'/personform/' + personid">edit</router-link>
               <router-link to="#">add task</router-link>
             </div>
@@ -68,7 +68,7 @@ export default {
         this.$store.commit('setPersonShow', { personid, value: false })
         return
       }
-      this.$store.dispatch('fetchPersonTasks', personid).then(() => {
+      this.$store.dispatch('fetchPersonTasks', { personid: personid, detail: false }).then(() => {
         this.$store.commit('setPersonShow', { personid, value: true })
       })
     },
