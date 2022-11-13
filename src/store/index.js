@@ -7,7 +7,9 @@ export default createStore({
     persons: {},
     projects: {},
     tasks: {},
-    personDetail: {}
+    personDetail: {},
+    projectDetail: {},
+    taskDetail: {}
   },
   getters: {
   },
@@ -30,7 +32,15 @@ export default createStore({
       }
     },
     setProjectTasks (state, payload) {
-      state.projects[payload.projectid].tasks = payload.data
+      if (payload.detail) {
+        state.projectDetail = Object.assign(state.projectDetail, {
+          tasks: payload.data,
+          totalTasks: payload.data.length,
+          totalCompleted: payload.data.filter(item => '' + item.completed === '1').length
+        })
+      } else {
+        state.projects[payload.projectid].tasks = payload.data
+      }
     },
     setPersonShow (state, payload)  {
       state.persons[payload.personid].show = payload.value
@@ -53,10 +63,23 @@ export default createStore({
       })
     },
     setTaskPersons (state, payload) {
-      state.tasks[payload.taskid].persons = payload.data
+      if (payload.detail) {
+        state.taskDetail = Object.assign(state.taskDetail, {
+          persons: payload.data,
+          totalPersons: payload.data.length
+        })
+      } else {
+        state.tasks[payload.taskid].persons = payload.data
+      }
     },
     setPersonDetail (state, record) {
       state.personDetail = Object.assign(state.personDetail, record)
+    },
+    setProjectDetail (state, record) {
+      state.projectDetail = Object.assign(state.projectDetail, record)
+    },
+    setTaskDetail (state, record) {
+      state.taskDetail = Object.assign(state.taskDetail, record)
     }
   },
   actions: {
@@ -76,9 +99,13 @@ export default createStore({
         })
       })
     },
-    fetchTaskPersons (context, taskid) {
-      db.get('js3personstasks?taskid=' + taskid).then(data => {
-        context.commit('setTaskPersons', { taskid, data })
+    fetchTaskPersons (context, payload) {
+      db.get('js3personstasks?taskid=' + payload.taskid).then(data => {
+        context.commit('setTaskPersons', {
+          taskid: payload.taskid,
+          detail: payload.detail,
+          data
+        })
       })
     },
     fetchProjects (context) {
@@ -86,10 +113,12 @@ export default createStore({
         context.commit('setProjects', data)
       })
     },
-    fetchProjectTasks (context, projectid) {
-      db.get('js3tasks?projectid=' + projectid).then(data => {
+    fetchProjectTasks (context, payload) {
+      db.get('js3tasks?projectid=' + payload.projectid).then(data => {
         context.commit('setProjectTasks', {
-          projectid, data: data.map(item => {
+          projectid: payload.projectid,
+          detail: payload.detail,
+          data: data.map(item => {
             return Object.assign(item, { startsFormated: formatDate(item.starts), endsFormated: formatDate(item.ends) })
           })
         })
@@ -97,12 +126,30 @@ export default createStore({
     },
     fetchTasks (context) {
       db.get('js3tasks').then(data => {
-        context.commit('setTasks', data)
+        context.commit('setTasks', data.map(item => {
+          return Object.assign(item, { startsFormated: formatDate(item.starts), endsFormated: formatDate(item.ends) })
+        }))
       })
     },
     fetchPersonDetail (context, id) {
       db.get('/js3persons/' + id).then((record) => {
         context.commit('setPersonDetail', record)
+      })
+    },
+    fetchProjectDetail (context, id) {
+      db.get('/js3projects/' + id).then((record) => {
+        context.commit('setProjectDetail', record)
+      })
+    },
+    fetchTaskDetail (context, id) {
+      db.get('js3tasks/' + id).then((record) => {
+        context.commit(
+          'setTaskDetail',
+          Object.assign(
+            record,
+            { startsFormated: formatDate(record.starts), endsFormated: formatDate(record.ends) }
+          )
+        )
       })
     }
   },

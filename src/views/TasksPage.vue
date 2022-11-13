@@ -13,11 +13,11 @@
         <div class="task-label">
           <div class="task-header" :class="{'task-completed': tasks[taskid].completed}">
             <div>{{ tasks[taskid].task }}</div>
-            <div>{{ formatDate(tasks[taskid].starts) + ' - ' + formatDate(tasks[taskid].ends) + (tasks[taskid].completed ? ', done' : '') }}</div>
+            <div>{{ tasks[taskid].startsFormated + ' - ' + tasks[taskid].endsFormated + (tasks[taskid].completed ? ', done' : '') }}</div>
           </div>
           <div :ref="'links' + taskid">
             <!-- TODO: add router links -->
-            <router-link to="#">detail</router-link>
+            <router-link :to="'/taskdetail/' + taskid">detail</router-link>
             <router-link :to="'/taskform/' + taskid">edit</router-link>
             <router-link to="#">add person</router-link>
           </div>
@@ -70,7 +70,7 @@ export default {
         this.$store.commit('setTaskShow', { taskid, value: false })
         return
       }
-      this.$store.dispatch('fetchTaskPersons', taskid).then(() => {
+      this.$store.dispatch('fetchTaskPersons', { taskid, detail: false }).then(() => {
         this.$store.commit('setTaskShow', { taskid, value: true })
       })
     },

@@ -3,15 +3,36 @@
 <div class="container">
   <div class="statistics"></div>
   <t-calendar :month="7" :year="2022" />
+  <t-modal :show="show" @close-me="show = false">
+    <template v-slot:header>
+      <div>header</div>
+    </template>
+    <template v-slot:body>
+      <div>body</div>
+    </template>
+    <template v-slot:footer>
+      <div>footer</div>
+    </template>
+  </t-modal>
 </div>
+<div>
+  <button @click="show=!show">modal</button>
+</div>
+
 </template>
 
 <script>
 import TCalendar from '../components/TCalendar.vue'
+import TModal from '../components/TModal.vue'
 
 export default {
   name: 'HomePage',
-  components: { TCalendar }
+  data() {
+    return {
+      show: false
+    }
+  },
+  components: { TCalendar, TModal }
 }
 
 </script>

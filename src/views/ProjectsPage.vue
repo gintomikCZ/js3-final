@@ -15,7 +15,7 @@
             <div>{{ projects[projectid].project }}</div>
             <div :ref="'links' + projectid">
               <!-- TODO: add router links -->
-              <router-link to="#">detail</router-link>
+              <router-link :to="'/projectdetail/' + projectid">detail</router-link>
               <router-link :to="'/projectform/' + projectid">edit</router-link>
               <router-link to="#">add task</router-link>
             </div>
@@ -63,7 +63,7 @@ export default {
         this.$store.commit('setProjectShow', { projectid, value: false })
         return
       }
-      this.$store.dispatch('fetchProjectTasks', projectid).then(() => {
+      this.$store.dispatch('fetchProjectTasks',{ projectid: projectid, detail: false }).then(() => {
         this.$store.commit('setProjectShow', { projectid, value: true })
       })
     },

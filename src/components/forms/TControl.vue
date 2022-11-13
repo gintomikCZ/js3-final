@@ -3,6 +3,8 @@
     <label :for="control">{{ settings.label }}</label>
     <select
       v-if="settings.type === 'select'"
+      :disabled="settings.disabled || false"
+      :readonly="settings.readonly || false"
       @input="onInput"
       @change="onChange"
       @blur="onBlur"
@@ -23,6 +25,8 @@
       :placeholder="settings.placeholder || ''"
       :type="settings.type"
       :value="value"
+      :disabled="settings.disabled || false"
+      :readonly="settings.readonly || false"
       @input="onInput"
       @change="onChange"
       @blur="onBlur"

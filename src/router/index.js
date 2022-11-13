@@ -46,6 +46,11 @@ const routes = [
     name: 'taskForm',
     component: () => import('../views/forms/TaskFormPage.vue')
   },
+  {
+    path: '/projecttaskform/:projectid',
+    name: 'projectTaskForm',
+    component: () => import('../views/forms/TaskFormPage.vue')
+  },
 
   // EDIT FORMS
   {
@@ -69,6 +74,16 @@ const routes = [
     path: '/persondetail/:id',
     name: 'personDetail',
     component: () => import('../views/PersonDetailPage.vue')
+  },
+  {
+    path: '/projectdetail/:id',
+    name: 'projectDetail',
+    component: () => import('../views/ProjectDetailPage.vue')
+  },
+  {
+    path: '/taskdetail/:id',
+    name: 'taskDetail',
+    component: () => import('../views/TaskDetailPage.vue')
   }
 
 ]

@@ -104,6 +104,10 @@ export default {
       )
     }
     Promise.all(promises).then(() => {
+      if (this.$route.params.projectid) {
+        this.formSettings.projectid.initialValue = '' + this.$route.params.projectid
+        this.formSettings.projectid.disabled = true
+      }
       this.loading = false
     })
   },
@@ -112,7 +116,7 @@ export default {
       const method = this.mode === 'add' ? 'post' : 'put'
       const data = this.mode === 'add' ? payload : Object.assign({ id: this.$route.params.id }, payload)
       db[method]('js3tasks', data).then(() => {
-        this.$router.push('/tasks')
+        this.$router.push(this.$route.params.projectid ? '/projectdetail/' + this.$route.params.projectid : '/tasks')
       })
     }
   },
