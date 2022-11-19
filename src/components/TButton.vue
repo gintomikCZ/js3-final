@@ -1,6 +1,10 @@
 <template>
 
-  <button @click="onClick">{{ label }}</button>
+  <button
+    :class="{'btn-secondary': secondary}"
+    @click="onClick"
+    :type="btnType"
+    >{{ label }}</button>
 
 </template>
 
@@ -9,7 +13,15 @@
 export default {
   name: 'TButton',
   props: {
-    label: String
+    label: String,
+    secondary: {
+      type: Boolean,
+      default: false
+    },
+    btnType: {
+      type: String,
+      default: 'submit'
+    }
   },
   methods: {
     onClick () {
@@ -33,5 +45,9 @@ button
   font-weight: bold
   &:hover
     background: $bg-hover
+  &.btn-secondary
+    background: $bg-secondary
+    &:hover
+      background: lighten($bg-secondary, 20)
 
 </style>

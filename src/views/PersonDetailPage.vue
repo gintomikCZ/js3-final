@@ -2,10 +2,16 @@
   <t-page :title="title" :loading="loading">
     <template v-slot:content>
       <div>
+        <img v-if="pictureFile" :src="pictureFile"/>
         <ul>
           <li v-for="item in personToDisplay" :key="item.label">
             <span>{{ item.label }}</span>
-            <span>{{ item.value }}</span>
+            <template v-if="item.label === 'cv' && item.value">
+              <a :href="'https://sdaapi.glabazna.eu/images/' + item.value" target="_blank">
+                <span>open file</span>
+              </a>
+            </template>
+            <span v-else>{{ item.value }}</span>
           </li>
         </ul>
       </div>
@@ -23,7 +29,6 @@
             </div>
           </template>
           <template v-slot:content>
-            <!-- tabulka úkolů -->
             <t-task-list :tasks="person.tasks" />
           </template>
         </t-accordion>
@@ -53,19 +58,29 @@ export default {
       return this.$route.params.id
     },
     person () {
-      return this.$store.state.personDetail
+      return this.loading ? {} : this.$store.state.personDetail
+    },
+    pictureFile () {
+      if (!this.person.picture) {
+        return ''
+      }
+      const ar = this.person.picture.split('.')
+      return 'https://sdaapi.glabazna.eu/images/' + ar[0] + '_200.' + ar[1]
     },
     title () {
-      return this.person.last + ' ' + this.person.first + ' details'
+      return !this.person.last || !this.person.first ? '' : this.person.last + ' ' + this.person.first + ' details'
     },
     personToDisplay () {
-      return [
-        { label: 'first name', value: this.person.first },
-        { label: 'last name', value: this.person.last },
-        { label: 'position', value: this.person.position },
-        { label: 'max level', value: this.person.maxlevel },
-        { label: 'active', value: this.person.active === '1' ? 'YES' : 'NO' }
-      ]
+      return this.loading
+        ? []
+        : [
+          { label: 'first name', value: this.person.first },
+          { label: 'last name', value: this.person.last },
+          { label: 'position', value: this.person.position },
+          { label: 'max level', value: this.person.maxlevel },
+          { label: 'active', value: this.person.active === '1' ? 'YES' : 'NO' },
+          { label: 'cv', value: this.person.cv }
+        ]
     }
   },
   created () {
@@ -75,7 +90,7 @@ export default {
         this.$store.dispatch('fetchPersonTasks', { personid: this.personid, detail: true })
       ]
     ).then(() => {
-      this.loading = false
+        this.loading = false
     })
   },
   methods: {
@@ -127,4 +142,14 @@ export default {
     padding: .4em .8em
   .list-container
     margin-top: 2rem
+
+  img
+    margin-bottom: 1rem
+    border: 1px solid $border-light
+    border-radius: $border-radius
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, .25)
+  a
+    cursor: pointer
+    text-decoration: none
+    color: $text-color
 </style>

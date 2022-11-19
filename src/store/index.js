@@ -9,11 +9,14 @@ export default createStore({
     tasks: {},
     personDetail: {},
     projectDetail: {},
-    taskDetail: {}
+    taskDetail: {},
   },
   getters: {
   },
   mutations: {
+    setReload (state, value) {
+      state.reload = value
+    },
     setPersons (state, data) {
       state.persons = {}
       data.forEach(record => {
@@ -73,7 +76,7 @@ export default createStore({
       }
     },
     setPersonDetail (state, record) {
-      state.personDetail = Object.assign(state.personDetail, record)
+      state.personDetail = Object.assign({}, record)
     },
     setProjectDetail (state, record) {
       state.projectDetail = Object.assign(state.projectDetail, record)

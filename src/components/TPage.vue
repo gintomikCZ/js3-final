@@ -1,14 +1,15 @@
 <template>
   <div class="page">
-    <div class="header">
-      <h1>{{ title }}</h1>
-      <slot name="btn"></slot>
-    </div>
-
     <t-loading v-if="loading" />
-    <div v-else class="page-container">
-     <slot name="content"></slot>
-    </div>
+    <template v-else>
+      <div class="header">
+        <h1>{{ title }}</h1>
+        <slot name="btn"></slot>
+      </div>
+      <div class="page-container">
+      <slot name="content"></slot>
+      </div>
+    </template>
   </div>
 </template>
 

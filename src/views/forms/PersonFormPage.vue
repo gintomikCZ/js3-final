@@ -2,7 +2,11 @@
   <div class="page">
     <h1>{{ title }}</h1>
     <t-loading v-if="loading" />
-    <t-form v-else :settings="formSettings" @submited="onSubmited" />
+    <t-form
+      v-else
+      :settings="formSettings"
+      @changed="onChanged"
+      @submited="onSubmited" />
   </div>
 </template>
 
@@ -51,15 +55,19 @@ export default {
           ]
         },
         picture: {
-          type: 'text',
+          type: 'file',
           initialValue: '',
           label: 'picture',
+          accept: '.jpg,.jpeg,.gif,.png',
+          fileType: 'image',
           valRules: []
         },
         cv: {
-          type: 'text',
+          type: 'file',
           initialValue: '',
           label: 'cv',
+          fileType: 'pdf',
+          accept: '.pdf',
           valRules: []
         },
         active: {
@@ -77,7 +85,9 @@ export default {
           ]
         }
       },
-      loading: true
+      loading: true,
+      pictureChanged: false,
+      cvChanged: false
     }
   },
   computed: {
@@ -102,7 +112,7 @@ export default {
       promises.push(db.get('js3persons/' + this.$route.params.id).then(
         record => {
           Object.keys(this.formSettings).forEach(control => {
-            this.formSettings[control].initialValue = '' + record[control]
+            this.formSettings[control].initialValue = record[control] === null ? '' : '' + record[control]
           })
         })
       )
@@ -112,12 +122,94 @@ export default {
     })
   },
   methods: {
-    onSubmited (payload) {
-      const method = this.mode === 'add' ? 'post' : 'put'
-      const data = this.mode === 'add' ? payload : Object.assign({ id: this.$route.params.id }, payload)
-      db[method]('js3persons', data).then(() => {
-        this.$router.push('/persons')
+    saveDataAdd (payload) {
+      const pictureInput = document.getElementById('picture')
+      const cvInput = document.getElementById('cv')
+      db.post('js3persons', payload).then(id => {
+        const promises = []
+        const editObject = { id }
+        if (pictureInput.files.length) {
+          const formData = new FormData()
+          formData.set('file', pictureInput.files[0])
+          promises.push(
+            db.post('file/' + id, formData).then(() => {
+              let pictureExt = pictureInput.files[0].type.split('/')[1]
+              if (pictureExt === 'jpeg') pictureExt = 'jpg'
+              editObject.picture = id + '.' + pictureExt
+            })
+          )
+        }
+        if (cvInput.files.length) {
+          const formData1 = new FormData()
+          formData1.set('file', cvInput.files[0])
+          promises.push(
+            db.post('file/' + id, formData1).then(() => {
+              editObject.cv = id + '_cv.pdf'
+            })
+          )
+        }
+        Promise.all(promises).then(() => {
+          if (Object.keys(editObject).length > 1) {
+            db.put('js3persons', editObject).then(() => {
+              this.$router.push('/persons')
+            })
+          } else {
+            this.$router.push('/persons')
+          }
+        })
       })
+    },
+
+    saveDataEdit (payload) {
+      const pictureInput = document.getElementById('picture')
+      const cvInput = document.getElementById('cv')
+      const promAr1 = []
+      const promAr2 = []
+      if (this.pictureChanged && this.formSettings.picture.initialValue) {
+        promAr1.push(db.post('file/delete/' + this.formSettings.picture.initialValue))
+        payload.picture = ''
+      }
+      if (pictureInput.files.length) {
+        const formData = new FormData()
+        formData.set('file', pictureInput.files[0])
+        let pictureExt = pictureInput.files[0].type.split('/')[1]
+        if (pictureExt === 'jpeg') pictureExt = 'jpg'
+        payload.picture = this.$route.params.id + '.' + pictureExt
+        promAr2.push(db.post('file/' + this.$route.params.id, formData))
+      }
+      if (this.cvChanged && this.formSettings.cv.initialValue) {
+        payload.cv = ''
+        promAr1.push(db.post('file/delete/' + this.formSettings.cv.initialValue))
+      }
+      if (cvInput.files.length) {
+        const formData1 = new FormData()
+        formData1.set('file',cvInput.files[0])
+        payload.cv = this.$route.params.id + '_cv.pdf'
+        promAr2.push(db.post('file/' + this.$route.params.id, formData1))
+      }
+      Promise.all(promAr1).then(() => {
+        Promise.all(promAr2).then(() => {
+          const newPayload = Object.assign({ id: this.$route.params.id }, payload)
+          db.put('js3persons', newPayload).then(() => {
+            this.$router.go(-1)
+          })
+        })
+      })
+    },
+    onSubmited (payload) {
+      if (this.mode === 'add') {
+        this.saveDataAdd(payload)
+      } else {
+        this.saveDataEdit(payload)
+      }
+    },
+    onChanged (control) {
+      if (control === 'picture') {
+        this.pictureChanged = true
+      }
+      if (control === 'cv') {
+        this.cvChanged = true
+      }
     }
   },
   components: { TForm, TLoading }

@@ -52,7 +52,31 @@ export default {
     })
   },
   methods: {
+    validateFile(control) {
+      let error = false
+      if (document.getElementById(control).files[0]) {
+        const type = document.getElementById(control).files[0].type
+        const size = document.getElementById(control).files[0].size
+        if (size > 2097152) {
+          this.formData[control].error = true
+          this.formData[control].errorMessage = 'The max file size is 2MB.'
+          error = true
+        } else if (['image/jpeg', 'image/gif', 'image/png', 'application/pdf'].indexOf(type) < 0) {
+          this.formData[control].error = true
+          this.formData[control].errorMessage = 'This file type is not allowed.'
+          error = true
+        }
+      }
+      if (!error) {
+        this.formData[control].error = false
+        this.formData[control].errorMessage = ''
+      }
+    },
     validate (control) {
+      if(this.settings[control].type === 'file') {
+        this.validateFile(control)
+        return
+      }
       const promises = this.settings[control].valRules.map(rule => {
         return validator[rule.rule](this.formData[control].value, rule.par)
       })
@@ -78,6 +102,7 @@ export default {
       })
     },
     onChanged (payload) {
+      this.$emit('changed', payload.control)
       this.formData[payload.control].value = payload.value.trim()
     },
     onBlured (control) {
