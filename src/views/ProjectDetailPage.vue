@@ -1,6 +1,36 @@
 <template>
   <t-page :title="title" :loading="loading">
     <template v-slot:content>
+
+      <t-modal :show="showNoDeleteModal" @close-me="showNoDeleteModal = false">
+        <template v-slot:header>
+          <h2>can't be deleted</h2>
+        </template>
+        <template v-slot:body>
+          <p>This project contains tasks, it can not be deleted.</p>
+        </template>
+        <template v-slot:footer>
+          <t-button label="OK" @clicked="showNoDeleteModal = false" />
+        </template>
+      </t-modal>
+
+      <t-modal :show="showDeleteModal" @close-me="showDeleteModal = false">
+        <template v-slot:header>
+          <h2>confirm delete</h2>
+        </template>
+        <template v-slot:body>
+          <p>
+            <span>do you really want to delete project </span>
+            <strong>{{ project.project }}</strong>
+            <span> ?</span>
+          </p>
+        </template>
+        <template v-slot:footer>
+          <t-button label="delete" @clicked="deleteProject" />
+          <t-button label="cancel" @clicked="showDeleteModal = false" />
+        </template>
+      </t-modal>
+
       <div>
         <ul>
           <li>
@@ -39,13 +69,17 @@ import TPage from '../components/TPage.vue'
 import TButton from '../components/TButton.vue'
 import TAccordion from '../components/TAccordion.vue'
 import TTaskList from '../components/TTaskList.vue'
+import TModal from '../components/TModal.vue'
+import db from '../helpers/db.js'
 
 export default {
   name: 'ProjectDetailPage',
   data () {
     return {
       loading: true,
-      taskListShow: false
+      taskListShow: false,
+      showNoDeleteModal: false,
+      showDeleteModal: false
     }
   },
   computed: {
@@ -74,8 +108,17 @@ export default {
       this.$router.push('/projectform/' + this.projectid)
     },
     onDeleteClicked () {
-      console.log('delete clicked')
-      // TODO:delete person behavior
+      if (!this.project.totalTasks) {
+        this.showDeleteModal = true
+      } else {
+        this.showNoDeleteModal = true
+      }
+    },
+    deleteProject () {
+      db.delete('js3projects/' + this.projectid).then(() => {
+        this.$router.push('/projects')
+      })
+
     },
     onAddTaskClicked () {
       this.$router.push('/projecttaskform/' + this.projectid)
@@ -84,7 +127,7 @@ export default {
       this.taskListShow = !this.taskListShow
     }
   },
-  components: { TPage, TButton, TAccordion, TTaskList }
+  components: { TPage, TButton, TAccordion, TTaskList, TModal }
 }
 
 </script>
@@ -117,4 +160,8 @@ export default {
     padding: .4em .8em
   .list-container
     margin-top: 2rem
+  h2
+    margin: 0
+    padding-left: 1rem
+    align-self: center
 </style>

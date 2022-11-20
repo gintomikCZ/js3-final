@@ -61,6 +61,7 @@ export default createStore({
       })
     },
     setTasks (state, data) {
+      state.tasks = {}
       data.forEach(record => {
         state.tasks[record.id] = Object.assign(record, { show: false, persons: [] })
       })
@@ -129,6 +130,7 @@ export default createStore({
     },
     fetchTasks (context) {
       db.get('js3tasks').then(data => {
+
         context.commit('setTasks', data.map(item => {
           return Object.assign(item, { startsFormated: formatDate(item.starts), endsFormated: formatDate(item.ends) })
         }))

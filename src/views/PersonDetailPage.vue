@@ -1,6 +1,51 @@
 <template>
   <t-page :title="title" :loading="loading">
     <template v-slot:content>
+
+      <t-modal :show="showTaskModal" @close-me="showTaskModal = false">
+        <template v-slot:header>
+          <h2>choose a task</h2>
+        </template>
+        <template v-slot:body>
+          <t-task-list
+            :tasks="availableTasks"
+            clickable
+            :highlighted-tasks="tasksToSave"
+            @clicked="onAddTaskItemClicked"/>
+        </template>
+        <template v-slot:footer>
+          <t-button label="OK" @clicked="onAddTasksOkClicked" />
+        </template>
+      </t-modal>
+
+      <t-modal :show="showNoDeleteModal" @close-me="showNoDeleteModal = false">
+        <template v-slot:header>
+          <h2>can't be deleted</h2>
+        </template>
+        <template v-slot:body>
+          <p>This record can not be deleted, there are tasks assigned to it in the database.</p>
+        </template>
+        <template v-slot:footer>
+          <t-button label="OK" @clicked="showNoDeleteModal = false"/>
+        </template>
+      </t-modal>
+
+      <t-modal :show="showDeleteModal" @close-me="showDeleteModal = false">
+        <template v-slot:header>
+          <h2>confirm delete</h2>
+        </template>
+        <template v-slot:body>
+          <p>
+            <span>do you really want to delete </span>
+            <strong>{{ person.last + ' ' + person.first }}</strong>
+            <span> ?</span>
+          </p>
+        </template>
+        <template v-slot:footer>
+            <t-button label="delete" @clicked="deletePerson"/>
+            <t-button label="cancel" @clicked="showDeleteModal = false"/>
+        </template>
+      </t-modal>
       <div>
         <img v-if="pictureFile" :src="pictureFile"/>
         <ul>
@@ -44,13 +89,19 @@ import TPage from '../components/TPage.vue'
 import TButton from '../components/TButton.vue'
 import TAccordion from '../components/TAccordion.vue'
 import TTaskList from '../components/TTaskList.vue'
+import TModal from '../components/TModal.vue'
+import db from '../helpers/db.js'
 
 export default {
   name: 'PersonDetailPage',
   data () {
     return {
       loading: true,
-      taskListShow: false
+      taskListShow: false,
+      showDeleteModal: false,
+      showNoDeleteModal: false,
+      showTaskModal: false,
+      tasksToSave: []
     }
   },
   computed: {
@@ -81,6 +132,12 @@ export default {
           { label: 'active', value: this.person.active === '1' ? 'YES' : 'NO' },
           { label: 'cv', value: this.person.cv }
         ]
+    },
+    allTasks () {
+      return [...Object.values(this.$store.state.tasks)]
+    },
+    availableTasks () {
+      return this.allTasks.filter(task => this.person.tasks.every(item => item.taskid !== task.id))
     }
   },
   created () {
@@ -98,18 +155,65 @@ export default {
       this.$router.push('/personform/' + this.personid)
     },
     onDeleteClicked () {
-      console.log('delete clicked')
-      // TODO:delete person behavior
+      if (this.person.totalTasks) {
+        this.showNoDeleteModal = true
+      } else {
+        this.showDeleteModal = true
+      }
+    },
+    deletePerson () {
+      const promises = []
+      if (this.person.cv) {
+        promises.push(
+          db.post('file/delete/' + this.person.cv)
+        )
+      }
+      if (this.person.picture) {
+        promises.push(
+          db.post('file/delete/' + this.person.picture)
+        )
+      }
+      Promise.all(promises).then(() => {
+        db.delete('js3persons', { id: this.personid }).then(() => {
+          this.$router.push('/persons')
+        })
+      })
     },
     onAddTaskClicked () {
-      console.log('add task clicked')
-      // TODO:add task to person behavior
+      this.$store.dispatch('fetchTasks').then(() => {
+        this.showTaskModal = true
+      })
     },
     onToggleMe () {
       this.taskListShow = !this.taskListShow
+    },
+    onAddTaskItemClicked (id) {
+      // zapsat id vybraného tasku do nějakého pole
+      // pokud už tam task je, tak ho odebrat
+      // graficky zvýraznit už vybraný záznam, nebo oddělat zvýraznění
+      if (this.tasksToSave.indexOf(id) < 0) {
+        this.tasksToSave.push(id)
+      } else {
+        this.tasksToSave = this.tasksToSave.filter(item => item !== id)
+      }
+    },
+    onAddTasksOkClicked () {
+      // vycházíme z pole tasksToSave
+      // za všech prvků toho pole vytvoříme nové záznamy v tabulce js3personstasks
+      // vymazat to pole tasksToSave
+      const promises = this.tasksToSave.map((taskid) => {
+        return db.post('js3personstasks', { personid: this.personid, taskid })
+      })
+      Promise.all(promises).then(() => {
+        this.$store.dispatch('fetchPersonTasks', { personid: this.personid, detail: true }).then(() => {
+          this.tasksToSave = []
+          this.showTaskModal = false
+        })
+      })
+
     }
   },
-  components: { TPage, TButton, TAccordion, TTaskList }
+  components: { TPage, TButton, TAccordion, TTaskList, TModal }
 }
 
 </script>
@@ -152,4 +256,8 @@ export default {
     cursor: pointer
     text-decoration: none
     color: $text-color
+  h2
+    margin: 0
+    padding-left: 1rem
+    align-self: center
 </style>

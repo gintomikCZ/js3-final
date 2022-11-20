@@ -1,7 +1,15 @@
 <template>
   <div class="person-list-content">
     <ul>
-      <li v-for="person in persons" :key="'person' + person.id">
+      <li
+        v-for="person in persons"
+        :key="'person' + person.id"
+        :class="{
+          'clickable': clickable,
+          'highlighted': highlightedPersons.indexOf(person.id) > -1
+        }"
+        @click="onClick(person.id)"
+      >
         <span>{{ person.last + ' ' + person.first }}</span>
         <span>{{ ', ' + person.position }}</span>
       </li>
@@ -15,7 +23,20 @@
 export default {
   name: 'TPersonList',
   props: {
-    persons: Array
+    persons: Array,
+    clickable: {
+      type: Boolean,
+      default: false
+    },
+    highlightedPersons: {
+      type: Array,
+      default: () => []
+    }
+  },
+  methods: {
+    onClick(personid) {
+      this.$emit('clicked', personid)
+    }
   }
 }
 
@@ -39,5 +60,12 @@ ul > li
 
 ul > li > span:first-child
   font-weight: bold
+.clickable
+  cursor: pointer
+  transition: background-color .3s ease
+  &:hover
+    background: $bg-hover
 
+.highlighted
+  background: $bg-highlight
 </style>

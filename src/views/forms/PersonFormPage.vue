@@ -125,73 +125,73 @@ export default {
     saveDataAdd (payload) {
       const pictureInput = document.getElementById('picture')
       const cvInput = document.getElementById('cv')
-      db.post('js3persons', payload).then(id => {
+      db.post('js3persons', payload).then(id => { // nejdříve ukládáme form. data (payload) bez souborů, protože potřebujeme dostat nové id
         const promises = []
-        const editObject = { id }
-        if (pictureInput.files.length) {
+        const editObject = { id } // už máme nové id a můžeme s ním pracovat
+        if (pictureInput.files.length) { // pokud je vložen obrázek
           const formData = new FormData()
           formData.set('file', pictureInput.files[0])
-          promises.push(
+          promises.push( // ukládáme ukládací promisu na obrázek
             db.post('file/' + id, formData).then(() => {
               let pictureExt = pictureInput.files[0].type.split('/')[1]
               if (pictureExt === 'jpeg') pictureExt = 'jpg'
-              editObject.picture = id + '.' + pictureExt
+              editObject.picture = id + '.' + pictureExt // a současně do objektu ukládáme název obrázku
             })
           )
         }
-        if (cvInput.files.length) {
+        if (cvInput.files.length) { // pokud je vložen cv
           const formData1 = new FormData()
           formData1.set('file', cvInput.files[0])
-          promises.push(
+          promises.push(   // ukládáme ukládací promisu
             db.post('file/' + id, formData1).then(() => {
-              editObject.cv = id + '_cv.pdf'
+              editObject.cv = id + '_cv.pdf' // a současně do objektu ukládáme název souboru cv
             })
           )
         }
-        Promise.all(promises).then(() => {
-          if (Object.keys(editObject).length > 1) {
-            db.put('js3persons', editObject).then(() => {
-              this.$router.push('/persons')
+        Promise.all(promises).then(() => { // pouštíme obě ukládací promisy
+          if (Object.keys(editObject).length > 1) { // pokud máme v editObjektu hodnoty
+            db.put('js3persons', editObject).then(() => { // pouštíme edit promisu, která uloží do db názvy těch souborů
+              this.$router.push('/persons') // potom přesměrování
             })
           } else {
-            this.$router.push('/persons')
+            this.$router.push('/persons') // v případě že nejsou hodnoty v objektu, hned přesměrováváme
           }
         })
       })
     },
 
     saveDataEdit (payload) {
-      const pictureInput = document.getElementById('picture')
-      const cvInput = document.getElementById('cv')
-      const promAr1 = []
-      const promAr2 = []
-      if (this.pictureChanged && this.formSettings.picture.initialValue) {
+      const pictureInput = document.getElementById('picture') // input el. obrázku
+      const cvInput = document.getElementById('cv') // input el. cv
+      const promAr1 = [] // sbírá promisy na mazání souborů (picture nebo cv)
+      const promAr2 = [] // sbírá promisy na ukládání souborů
+      if (this.pictureChanged && this.formSettings.picture.initialValue) { // pokud je změněn obrázek, ukládáme mazací promisu do prvního pole
         promAr1.push(db.post('file/delete/' + this.formSettings.picture.initialValue))
         payload.picture = ''
       }
-      if (pictureInput.files.length) {
+      if (pictureInput.files.length) { // pokud je vložen nový obrázek ukládáme ukládací promisu do druhého pole
         const formData = new FormData()
         formData.set('file', pictureInput.files[0])
-        let pictureExt = pictureInput.files[0].type.split('/')[1]
+        let pictureExt = pictureInput.files[0].type.split('/')[1] // současně do form. dat (payload) ukládáme nový název souboru
         if (pictureExt === 'jpeg') pictureExt = 'jpg'
         payload.picture = this.$route.params.id + '.' + pictureExt
         promAr2.push(db.post('file/' + this.$route.params.id, formData))
       }
-      if (this.cvChanged && this.formSettings.cv.initialValue) {
+      if (this.cvChanged && this.formSettings.cv.initialValue) { // pokud je změněn cv soubor, ukládáme mazací promisu do prvního pole
         payload.cv = ''
         promAr1.push(db.post('file/delete/' + this.formSettings.cv.initialValue))
       }
-      if (cvInput.files.length) {
+      if (cvInput.files.length) { // pokud je vložen soubor cv, ukládáme ukládací promisu do druhého pole
         const formData1 = new FormData()
         formData1.set('file',cvInput.files[0])
-        payload.cv = this.$route.params.id + '_cv.pdf'
+        payload.cv = this.$route.params.id + '_cv.pdf' // současně do form. dat (payload) ukládáme nový název souboru
         promAr2.push(db.post('file/' + this.$route.params.id, formData1))
       }
-      Promise.all(promAr1).then(() => {
-        Promise.all(promAr2).then(() => {
-          const newPayload = Object.assign({ id: this.$route.params.id }, payload)
-          db.put('js3persons', newPayload).then(() => {
-            this.$router.go(-1)
+      Promise.all(promAr1).then(() => { // pouštíme mazací promisy
+        Promise.all(promAr2).then(() => { // po nich pouštíme ukládací promisy
+          const newPayload = Object.assign({ id: this.$route.params.id }, payload) // přidáváme id k datům
+          db.put('js3persons', newPayload).then(() => { // pouštíme promisu na uložení celých form. dat
+            this.$router.go(-1) // přesměrováváme
           })
         })
       })

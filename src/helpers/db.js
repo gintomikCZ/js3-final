@@ -12,7 +12,6 @@ const checkUrl = (url) => {
 
 
 export default {
-
   get (path) {
     return axios({
       method: 'get',
