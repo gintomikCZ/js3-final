@@ -1,15 +1,15 @@
 <template>
   <form autocomplete="off" @submit.prevent="onSubmit">
-    <t-control
-      v-for="control in controls"
-      :key="control"
-      :settings="settings[control]"
-      :control="control"
-      :error="formData[control].error"
-      :errorMessage="formData[control].errorMessage"
-      @changed="onChanged"
-      @blured="onBlured"
-    />
+    <template v-for="control in controls" :key="control">
+      <t-control
+        :settings="settings[control]"
+        :control="control"
+        :error="formData[control].error"
+        :errorMessage="formData[control].errorMessage"
+        @changed="onChanged"
+        @blured="onBlured"
+      />
+    </template>
     <div>
       <t-button :label="submitBtnText"/>
     </div>

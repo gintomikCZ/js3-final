@@ -11,3 +11,11 @@ export const formatDate = function (dateString) {
   return ar[2] + '.' + ar[1] + '.' + ar[0]
 
 }
+
+export const getDateString = function (dt) {
+  const month = dt.getMonth() + 1
+  const monthToDisplay =  month < 10 ? '0' + month : '' + month
+  const date = dt.getDate()
+  const dateToDisplay = date < 10 ? '0' + date : '' + date
+  return '' + dt.getFullYear() + '-' + monthToDisplay + '-' + dateToDisplay
+}

@@ -47,8 +47,23 @@ export default {
     persons () {
       return this.$store.state.persons
     },
+    /*
+      [
+        {id: 1, first: Karel, last: houska }
+        {id: 2, first: Karel, last: houska }
+        {id: 3, first: Karel, last: houska }
+        {id: 4, first: Karel, last: houska }
+      ]
+
+      {
+        '1': {id: 1, first: Karel, last: houska },
+        '2':  {id: 2, first: Karel, last: houska }
+      }
+
+
+    */
     personskeys () {
-      return Object.keys(this.persons).sort((a, b) => {
+      return Object.keys(this.persons).sort((a, b) => { // [1, 5, 8, 9]
         const aFullName = this.persons[a].last + ' ' + this.persons[a].first
         const bFullName = this.persons[b].last + ' ' + this.persons[b].first
         return aFullName.localeCompare(bFullName)

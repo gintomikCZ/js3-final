@@ -6,6 +6,9 @@
     'weekend-day': isWeekend
   }"
   >{{ dayNumber }}</div>
+  <div v-if="day.isEndDay">
+    <span>ahoj</span>
+  </div>
 </div>
 
 </template>
@@ -16,21 +19,23 @@ export default {
   name: 'CalendarDay',
   props: {
     day: {
-      required: true,
-      validator: (v) => (v instanceof Date) && !isNaN(v.getTime())
+      required: true
     },
     isCurrentMonth: {
       type: Boolean,
       required: true
-    }
+    },
   },
   computed: {
     dayNumber () {
-      return this.day.getDate()
+      return this.day.date.getDate()
     },
     isWeekend () {
-      return [0, 6].includes(this.day.getDay())
+      return [0, 6].includes(this.day.date.getDay())
     }
+  },
+  created () {
+    console.log(this.day)
   }
 }
 

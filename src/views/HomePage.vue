@@ -1,38 +1,70 @@
 <template>
 <h1>Home</h1>
-<div class="container">
-  <div class="statistics"></div>
-  <t-calendar :month="7" :year="2022" />
-  <t-modal :show="show" @close-me="show = false">
-    <template v-slot:header>
-      <div>header</div>
+  <div class="container">
+    <t-loading v-if="loading" />
+    <template v-else>
+      <div class="statistics">
+        <ul>
+          <li>
+            <span>we have </span>
+            <strong>{{ Object.keys(persons).length }}</strong>
+            <span> persons in our database</span>
+          </li>
+          <li>
+            <span>we have </span>
+            <strong>{{ Object.keys(tasks).length }}</strong>
+            <span> tasks in our database, </span>
+            <span>number of completed tasks: </span>
+            <strong>{{ Object.keys(tasks).filter((taskKey) => tasks[taskKey].completed).length}}</strong>
+          </li>
+        </ul>
+      </div>
+      <t-calendar
+        :month="7"
+        :year="2022"
+        :end-days="endDays"/>
     </template>
-    <template v-slot:body>
-      <div>body</div>
-    </template>
-    <template v-slot:footer>
-      <div>footer</div>
-    </template>
-  </t-modal>
-</div>
-<div>
-  <button @click="show=!show">modal</button>
-</div>
+  </div>
 
 </template>
 
 <script>
 import TCalendar from '../components/TCalendar.vue'
-import TModal from '../components/TModal.vue'
+import TLoading from '../components/TLoading.vue'
 
 export default {
   name: 'HomePage',
   data() {
     return {
-      show: false
+      show: false,
+      loading: true
     }
   },
-  components: { TCalendar, TModal }
+  computed: {
+    persons () {
+      return this.$store.state.persons
+    },
+    tasks () {
+      return this.$store.state.tasks
+    },
+    endDays () {
+      // return ['švestka', 'jablko']
+      return Object.keys(this.tasks).map(taskKey => {
+        return this.tasks[taskKey].ends
+      })
+    }
+  },
+  created () {
+    Promise.all(
+      [
+        this.$store.dispatch('fetchPersons'),
+        this.$store.dispatch('fetchTasks')
+      ]
+    ).then(() => {
+      this.loading = false
+    })
+  },
+  components: { TCalendar, TLoading }
 }
 
 </script>
@@ -43,7 +75,11 @@ export default {
 .statistics
   width: 300px
   height: 300px
-  background: lightpink
+  & ul
+    list-style: none
+    & li
+      padding: .35em .8em
+      text-align: left
 
 .container
   display: flex

@@ -12,6 +12,12 @@ import TNavBar from './components/TNavBar.vue'
 export default {
 
   name: 'App',
+  mounted () {
+    this.$store.commit('setWindow')
+    window.addEventListener('resize', () => {
+      this.$store.commit('setWindow')
+    })
+  },
   components: { TNavBar }
 
 }

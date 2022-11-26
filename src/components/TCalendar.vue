@@ -7,7 +7,7 @@
       v-for="(day, index) in days"
       :key="index"
       :day="day"
-      :is-current-month="day.getMonth() === month"
+      :is-current-month="day.date.getMonth() === month"
     />
   </div>
 </template>
@@ -15,7 +15,7 @@
 
 <script>
 
-import { getNumberOfDays } from '../helpers/dateFunctions.js'
+import { getNumberOfDays, getDateString } from '../helpers/dateFunctions.js'
 import TCalendarDay from './TCalendarDay.vue'
 
 export default {
@@ -28,6 +28,10 @@ export default {
     year: {
       type: Number,
       required: true
+    },
+    endDays: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
@@ -35,21 +39,39 @@ export default {
       const numberOfDays = getNumberOfDays(this.month, this.year)
       const ar = []
       for (let i = 1; i <= numberOfDays; i++) {
-        ar.push(new Date(this.year, this.month, i))
+        const dt = new Date(this.year, this.month, i)
+        ar.push(
+          {
+            date: dt,
+            isEndDay: this.endDays.indexOf(this.getDateString(dt)) > -1
+          }
+        )
       }
-      let lastDay = ar[ar.length - 1].getDay()
+      let lastDay = ar[ar.length - 1].date.getDay()
       if (lastDay === 0) {
         lastDay = 7
       }
       for (let i = 1; i <= 7 - lastDay; i++) {
-        ar.push(new Date(this.year, this.month, numberOfDays + i))
+        const dt = new Date(this.year, this.month, numberOfDays + i)
+        ar.push(
+          {
+            date: dt,
+            isEndDay: this.endDays.indexOf(this.getDateString(dt)) > -1
+          }
+        )
       }
-      let firstDay = ar[0].getDay()
+      let firstDay = ar[0].date.getDay()
       if (firstDay === 0) {
         firstDay = 7
       }
       for (let i = 1; i < firstDay; i++) {
-        ar.unshift(new Date(this.year, this.month, 1 - i))
+        const dt = new Date(this.year, this.month, 1 - i)
+        ar.unshift(
+          {
+            date: dt,
+            isEndDay: this.endDays.indexOf(this.getDateString(dt)) > -1
+          }
+        )
       }
       return ar
     },
@@ -65,9 +87,16 @@ export default {
       return weeks
     }
   },
-  mounted () {
-    console.log(this.numberOfWeeks)
-    console.log(this.weeks)
+  created () {
+    setTimeout(() => {
+      console.log(this.days)
+    }, 1000)
+  },
+  methods: {
+    getDateString (value) {
+      console.log(getDateString(value))
+      return getDateString(value)
+    }
   },
   components: { TCalendarDay }
 }

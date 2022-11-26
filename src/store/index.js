@@ -10,6 +10,8 @@ export default createStore({
     personDetail: {},
     projectDetail: {},
     taskDetail: {},
+    width: 0,
+    height: 0
   },
   getters: {
   },
@@ -84,6 +86,10 @@ export default createStore({
     },
     setTaskDetail (state, record) {
       state.taskDetail = Object.assign(state.taskDetail, record)
+    },
+    setWindow (state) {
+      state.width = window.innerWidth
+      state.height = window.innerHeight
     }
   },
   actions: {
@@ -162,24 +168,3 @@ export default createStore({
 
   }
 })
-
-/*
-
-'persons?first=Karel&last=Houska' => [{.....}]
-'persons/2' => { first: 'Karel' ....}
-
-state.persons = {
-  2: {
-    first: 'Karel',
-    last: 'Houska,
-    show: false,
-    tasks: [
-      { id: 1, taskid: 1, personid: 2, first: Karel, last: Houska, task: vokopat zahradu, starts: '2022-09-13'}
-      { id: 2, taskid: 1, personid: 2, first: Karel, last: Houska, task: vokopat zahradu, starts: '2022-09-13'}
-    ],
-    userLastModified,
-    timeLastModified
-  }
-}
-
-*/
