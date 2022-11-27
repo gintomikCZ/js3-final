@@ -1,22 +1,38 @@
 <template>
-  <div class="calendar">
-    <!-- <div
-      v-for="(day, index) in days" :key="index" class="calendar-day">{{ day.getDate() }}</div>
-  </div> -->
-    <t-calendar-day
-      v-for="(day, index) in days"
-      :key="index"
-      :day="day"
-      :is-current-month="day.date.getMonth() === month"
-    />
+  <div>
+    <div class="calendar-header">
+      <!-- << -->
+      <div class="arrows">
+        <t-button label="<<" @clicked="$emit('year-minus')" />
+        <!-- < -->
+        <t-button label="<" @clicked="$emit('month-minus')"/>
+      </div>
+      <!-- November 2022 -->
+      <h2>{{ title }}</h2>
+      <!-- >> -->
+      <div class="arrows">
+        <t-button label=">" @clicked="$emit('month-plus')"/>
+        <!-- > -->
+        <t-button label=">>" @clicked="$emit('year-plus')"/>
+      </div>
+    </div>
+    <div class="calendar">
+      <t-calendar-day
+        v-for="(day, index) in days"
+        :key="index"
+        :day="day"
+        :is-current-month="day.date.getMonth() === month"
+      />
+    </div>
   </div>
 </template>
 
 
 <script>
 
-import { getNumberOfDays, getDateString } from '../helpers/dateFunctions.js'
+import { getNumberOfDays, getDateString, getMonthName } from '../helpers/dateFunctions.js'
 import TCalendarDay from './TCalendarDay.vue'
+import TButton from './TButton.vue'
 
 export default {
   name: 'TCalendar',
@@ -85,20 +101,17 @@ export default {
         weeks.push(portion)
       }
       return weeks
+    },
+    title () {
+      return getMonthName(new Date(this.year, this.month, 1)) + ' ' + this.year
     }
-  },
-  created () {
-    setTimeout(() => {
-      console.log(this.days)
-    }, 1000)
   },
   methods: {
     getDateString (value) {
-      console.log(getDateString(value))
       return getDateString(value)
     }
   },
-  components: { TCalendarDay }
+  components: { TCalendarDay, TButton }
 }
 
 </script>
@@ -112,6 +125,12 @@ export default {
   display: grid
   grid-template-columns: repeat(7, 1fr)
 
+.calendar-header
+  display: flex
+  align-items: center
+  justify-content: space-between
 
-
+.arrows
+  display: flex
+  gap: .5rem
 </style>

@@ -32,12 +32,7 @@
 <script>
 
 export default {
-  name: 'TNavBar',
-  mounted () {
-    const rect = this.$refs.myNav.getBoundingClientRect()
-    console.log(rect)
-    console.log(window.innerWidth)
-  }
+  name: 'TNavBar'
 }
 
 

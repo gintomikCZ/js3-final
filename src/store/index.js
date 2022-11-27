@@ -162,7 +162,16 @@ export default createStore({
           )
         )
       })
-    }
+    },
+    // fetchSynchronous (context) {
+    //   return new Promise (resolve => {
+    //     setTimeout(() => {
+    //       context.commit('saveData', data)
+    //       resolve()
+    //     }, 1000)
+    //   })
+    // }
+    // thenable
   },
   modules: {
 

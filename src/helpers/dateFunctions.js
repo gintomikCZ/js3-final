@@ -1,3 +1,6 @@
+
+// const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
 export const getNumberOfDays = function (month, year) {
   const lastDayOfMonth = new Date(year, month + 1, 0)
   return lastDayOfMonth.getDate()
@@ -18,4 +21,8 @@ export const getDateString = function (dt) {
   const date = dt.getDate()
   const dateToDisplay = date < 10 ? '0' + date : '' + date
   return '' + dt.getFullYear() + '-' + monthToDisplay + '-' + dateToDisplay
+}
+
+export const getMonthName = function (dt) {
+  return dt.toLocaleString('en-us', { month: 'long' })
 }

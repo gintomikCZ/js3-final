@@ -20,9 +20,14 @@
         </ul>
       </div>
       <t-calendar
-        :month="7"
-        :year="2022"
-        :end-days="endDays"/>
+        :month="month"
+        :year="year"
+        :end-days="endDays"
+        @month-plus="monthPlus"
+        @month-minus="monthMinus"
+        @year-plus="year++"
+        @year-minus="year--"
+      />
     </template>
   </div>
 
@@ -37,7 +42,9 @@ export default {
   data() {
     return {
       show: false,
-      loading: true
+      loading: true,
+      month: 0,
+      year: 0
     }
   },
   computed: {
@@ -55,6 +62,9 @@ export default {
     }
   },
   created () {
+    const today = new Date()
+    this.month = today.getMonth()
+    this.year = today.getFullYear()
     Promise.all(
       [
         this.$store.dispatch('fetchPersons'),
@@ -63,6 +73,24 @@ export default {
     ).then(() => {
       this.loading = false
     })
+  },
+  methods: {
+    monthPlus () {
+      if(this.month === 11) {
+        this.month = 0
+        this.year++
+      } else {
+        this.month++
+      }
+    },
+    monthMinus () {
+      if(this.month === 0) {
+        this.month = 11
+        this.year--
+      } else {
+        this.month--
+      }
+    }
   },
   components: { TCalendar, TLoading }
 }
@@ -73,8 +101,8 @@ export default {
 @import '../styles/variables.styl'
 
 .statistics
-  width: 300px
-  height: 300px
+  align-self: flex-start
+  margin-top: 4rem
   & ul
     list-style: none
     & li
